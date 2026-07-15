@@ -1117,12 +1117,13 @@ var IMAGE_KEY_ALIASES = Object.freeze({
   f_pqseafood:'f_pq_seafood'
 });
 
-function photo(key, alt){
+function photo(key, alt, preload){
   if(!key) return '';
   var u = IMG[IMAGE_KEY_ALIASES[key] || key];
   if(!u) return "";
   var a = String(alt==null?'':alt).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return '<img class="photo" src="'+u+'" alt="'+a+'" loading="lazy" decoding="async" fetchpriority="low" onerror="this.remove()">';
+  var attrs = preload ? ' loading="eager" fetchpriority="high"' : ' loading="lazy"';
+  return '<img class="photo" src="'+u+'" alt="'+a+'"'+attrs+' decoding="async" onerror="this.remove()">';
 }
 
 var cityState={region:'all',tag:'all'};
@@ -1144,9 +1145,9 @@ function renderCities(){
   var grid=$('cityGrid'); grid.innerHTML='';
   var list=CITIES.filter(cityMatch);
   if(!list.length){ grid.appendChild(emptyState('没有符合条件的城市，换个筛选试试～')); return; }
-  list.forEach(function(c){
+  list.forEach(function(c,index){
     var card=el('article','card');
-    var cover=el('div','cover'); cover.innerHTML=scene(c.cover)+photo(c.cn,c.cn)+'<span class="region-badge">'+(c.region==='island'?'海岛':({north:'北部',central:'中部',south:'南部'}[c.region]||''))+'</span>';
+    var cover=el('div','cover'); cover.innerHTML=scene(c.cover)+photo(c.cn,c.cn,index<3)+'<span class="region-badge">'+(c.region==='island'?'海岛':({north:'北部',central:'中部',south:'南部'}[c.region]||''))+'</span>';
     card.appendChild(cover);
     var body=el('div','card-body');
     body.appendChild(el('h3',null,esc(c.cn)+' <span class="muted small">'+esc(c.vn)+'</span>'));
